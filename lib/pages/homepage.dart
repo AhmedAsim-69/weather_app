@@ -244,7 +244,7 @@ class UserStack extends StatelessWidget {
                 ),
               ),
               Positioned(
-                top: MediaQuery.of(context).size.height * 1.0,
+                top: MediaQuery.of(context).size.height * 1.02,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: BackdropFilter(
@@ -266,7 +266,7 @@ class UserStack extends StatelessWidget {
                 ),
               ),
               Positioned(
-                top: MediaQuery.of(context).size.height * 1.1,
+                top: MediaQuery.of(context).size.height * 1.11,
                 child: Container(
                   width: MediaQuery.of(context).size.width * 0.95,
                   decoration: BoxDecoration(
