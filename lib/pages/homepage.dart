@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:weather_app/models/forecast.dart';
 import 'package:weather_app/models/time.dart';
 import 'package:weather_app/models/weather.dart';
+import 'package:weather_app/pages/seven_day_forecast.dart';
 import 'package:weather_app/widgets/hourly_forecast.dart';
 import 'package:weather_app/widgets/info_card.dart';
 import 'package:weather_app/widgets/three_day_tile.dart';
@@ -69,9 +70,9 @@ class UserStack extends StatelessWidget {
       background = './images/bg_cloudy.png';
     }
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage("images/bg_partial_cloudy.png"),
+          image: AssetImage(background),
           fit: BoxFit.cover,
         ),
       ),
@@ -175,10 +176,8 @@ class UserStack extends StatelessWidget {
               ),
               Positioned(
                 top: MediaQuery.of(context).size.height * 0.62,
-                left: MediaQuery.of(context).size.width * 0.05,
-                right: MediaQuery.of(context).size.width * 0.05,
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     HourlyForecast(
                       time: 'Now',
@@ -260,7 +259,13 @@ class UserStack extends StatelessWidget {
                             '7-Day Forecast',
                             style: TextStyle(color: Colors.white),
                           ),
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const SevenDayForecast(),
+                              ),
+                            );
+                          },
                         ),
                       )),
                 ),
