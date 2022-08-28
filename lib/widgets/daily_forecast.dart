@@ -28,38 +28,36 @@ class DailyForecast extends StatelessWidget {
     } else if (icon == 'Clouds') {
       displayIcon = './images/cloud.png';
     }
-    return Container(
-      child: Column(
-        children: [
-          Text(
-            day,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 15,
-            ),
+    return Column(
+      children: [
+        Text(
+          day,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 15,
           ),
-          Text(
-            ' $date ',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 9,
-            ),
+        ),
+        Text(
+          ' $date ',
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 9,
           ),
-          Image.asset(
-            displayIcon,
-            height: 50,
-            width: 50,
+        ),
+        Image.asset(
+          displayIcon,
+          height: 50,
+          width: 50,
+        ),
+        Text(
+          "$temp\u2103",
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 14,
           ),
-          Text(
-            "$temp\u2103",
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

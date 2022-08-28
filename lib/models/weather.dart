@@ -115,15 +115,19 @@ class Clouds {
 }
 
 class Sys {
-  final String country;
+  // final String country;
   final int sunrise;
   final int sunset;
 
-  Sys({required this.country, required this.sunrise, required this.sunset});
+  Sys(
+      {
+      // required this.country,
+      required this.sunrise,
+      required this.sunset});
 
   factory Sys.fromJson(Map<String, dynamic> json) {
     return Sys(
-        country: json['country'],
+        // country: json['country'],
         sunset: json['sunset'],
         sunrise: json['sunrise']);
   }
@@ -194,28 +198,30 @@ class WeatherAQI {
   }
 }
 
-Future<List> getCurrentWeather() async {
+Future<List> getCurrentWeather([String? lat, String? lon]) async {
   WeatherModel weather = WeatherModel();
   WeatherAQI weatherAQI = WeatherAQI();
   ForecastHourly weatherHourly = ForecastHourly(hourly: []);
+  String API = 'f85916ee555786a3c8cdd4ee9d1b19f1';
 
   http.Response response = await http.get(Uri.parse(
-      'https://api.openweathermap.org/data/2.5/weather?q=Lahore&appid=ae15f188e5525a51ea3b54e6f433f318&units=metric'));
+      'https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=$API&units=metric'));
   http.Response responseAQI = await http.get(Uri.parse(
-      'https://api.openweathermap.org/data/2.5/air_pollution?lat=31&lon=74&appid=f85916ee555786a3c8cdd4ee9d1b19f1&units=metric'));
+      'https://api.openweathermap.org/data/2.5/air_pollution?lat=$lat&lon=$lon&appid=$API&units=metric'));
   http.Response responseHourly = await http.get(Uri.parse(
-      'https://api.openweathermap.org/data/2.5/forecast?lat=31&lon=74&appid=f85916ee555786a3c8cdd4ee9d1b19f1&units=metric'));
+      'https://api.openweathermap.org/data/2.5/forecast?lat=$lat&lon=$lon&appid=$API&units=metric'));
 
   if (response.statusCode == 200 &&
       responseAQI.statusCode == 200 &&
       responseHourly.statusCode == 200) {
     log('working');
+    log('lat = $lat & lon = $lon & appid = $API');
     log('response is ${response.statusCode}, responseAQI is ${responseAQI.statusCode}');
 
     weather = WeatherModel.fromJson(jsonDecode(response.body));
     weatherAQI = WeatherAQI.fromJson(jsonDecode(responseAQI.body));
     weatherHourly = ForecastHourly.fromJson(jsonDecode(responseHourly.body));
-    log(weatherHourly.hourly[0].weather![0].description);
+    log(weatherHourly.hourly[0].weather![0].main);
   } else {
     log('something went wronggggg');
     log('response is ${response.statusCode}');

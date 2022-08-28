@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:weather_app/pages/homepage.dart';
+import 'package:weather_app/services/shared_preferences.dart';
+import 'package:weather_app/services/weather_bloc.dart';
 
-void main() {
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await UserSimplePreferences.init();
   runApp(const MyApp());
 }
 
@@ -18,7 +23,10 @@ class MyApp extends StatelessWidget {
         fontFamily: "Typography",
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: BlocProvider(
+        create: (context) => WeatherBloc(),
+        child: const MyHomePage(title: 'Flutter Demo Home Page'),
+      ),
     );
   }
 }

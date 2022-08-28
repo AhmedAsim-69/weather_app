@@ -30,7 +30,6 @@ class ThreeDayTile extends StatelessWidget {
       displayIcon = './images/cloud.png';
     }
     return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
         child: Row(

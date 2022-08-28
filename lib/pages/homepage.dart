@@ -1,12 +1,19 @@
 // ignore_for_file: must_be_immutable
 
+import 'dart:async';
+import 'dart:developer';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:location/location.dart';
 import 'package:weather_app/models/forecast.dart';
 import 'package:weather_app/models/time.dart';
 import 'package:weather_app/models/weather.dart';
 import 'package:weather_app/pages/seven_day_forecast.dart';
+import 'package:weather_app/services/shared_preferences.dart';
+import 'package:weather_app/services/weather_bloc.dart';
 import 'package:weather_app/widgets/hourly_forecast.dart';
 import 'package:weather_app/widgets/info_card.dart';
 import 'package:weather_app/widgets/three_day_tile.dart';
@@ -20,28 +27,82 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  // LocationData? currentLocation;
+  // StreamSubscription<LocationData>? locationSubscription;
+  Location locationService = Location();
+  String error = '';
+  String lat = '0';
+  String lon = '0';
+  LocationData? _currentLocation;
+  StreamSubscription<LocationData>? _locationSubscription;
+
+  final _locationService = Location();
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+    lat = UserSimplePreferences.getLatitude() ?? '0';
+    lon = UserSimplePreferences.getLongitude() ?? '0';
+  }
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: getCurrentWeather(),
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        if (snapshot.hasData) {
-          WeatherModel weather = snapshot.data[0];
-          WeatherAQI weatherAQI = snapshot.data[1];
-          ForecastHourly weatherHourly = snapshot.data[2];
-          if (weather == null) {
-          } else {
-            return UserStack(
-                currentWeather: weather,
-                weatherAQI: weatherAQI,
-                forecastHourly: weatherHourly);
-          }
-        } else {
-          return const Center(child: CircularProgressIndicator());
-        }
-        return const Text('smthn went wrong');
+    log('123');
+    return BlocBuilder<WeatherBloc, WeatherState>(
+      builder: (context, state) {
+        initPlatformState();
+
+        _locationSubscription = _locationService.onLocationChanged
+            .listen((LocationData currentLocation) async {
+          setState(() async {
+            _currentLocation = currentLocation;
+
+            lat = _currentLocation!.latitude.toString();
+            lon = _currentLocation!.longitude.toString();
+            await UserSimplePreferences.storeLatitude(lat);
+            await UserSimplePreferences.storeLongitude(lon);
+          });
+        });
+
+        return FutureBuilder(
+          future: getCurrentWeather(lat, lon),
+          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+            if (snapshot.hasData) {
+              WeatherModel weather = snapshot.data[0];
+              WeatherAQI weatherAQI = snapshot.data[1];
+              ForecastHourly weatherHourly = snapshot.data[2];
+              if (weather == null) {
+              } else {
+                return UserStack(
+                    currentWeather: weather,
+                    weatherAQI: weatherAQI,
+                    forecastHourly: weatherHourly);
+              }
+            } else {
+              return const Center(child: CircularProgressIndicator());
+            }
+            return const Text('smthn went wrong');
+          },
+        );
       },
     );
+  }
+
+  void initPlatformState() async {
+    LocationData? myLocation;
+    try {
+      myLocation = await locationService.getLocation();
+      error = '';
+    } on PlatformException catch (e) {
+      if (e.code == 'PERMISSION_DENIED') {
+        error = 'Permission Denied';
+      } else if (e.code == 'PERMISSION_DENIED_NEVER_ASK') {
+        error =
+            'Permission Denied - Please ask the user to enable it from app settings';
+      }
+      myLocation = null;
+    }
   }
 }
 
@@ -56,7 +117,7 @@ class UserStack extends StatelessWidget {
   final ForecastHourly forecastHourly;
   final WeatherAQI weatherAQI;
   final WeatherModel currentWeather;
-  String background = './images/sunny.png';
+  String background = './images/bg_clear.png';
   late final bgWeather = currentWeather.weather![0].main;
   @override
   Widget build(BuildContext context) {
@@ -64,8 +125,8 @@ class UserStack extends StatelessWidget {
       background = './images/bg_thunderstorm.png';
     } else if (bgWeather == 'Drizzle' || bgWeather == 'Rain') {
       background = './images/bg_rain.png';
-    } else if (bgWeather == 'Clear') {
-      background = './images/bg_sunny.png';
+    } else if (bgWeather == 'Clear' || bgWeather == 'Haze') {
+      background = './images/bg_clear.png';
     } else if (bgWeather == 'Clouds') {
       background = './images/bg_cloudy.png';
     }
@@ -262,7 +323,10 @@ class UserStack extends StatelessWidget {
                           onPressed: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) => const SevenDayForecast(),
+                                builder: (context) => SevenDayForecast(
+                                    currentWeather: currentWeather,
+                                    weatherAQI: weatherAQI,
+                                    forecastHourly: forecastHourly),
                               ),
                             );
                           },

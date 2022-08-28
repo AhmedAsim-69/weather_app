@@ -4,11 +4,16 @@ import 'package:weather_app/models/time.dart';
 import 'package:weather_app/models/weather.dart';
 import 'package:weather_app/widgets/daily_forecast.dart';
 
-import '../widgets/hourly_forecast.dart';
-
 class SevenDayForecast extends StatefulWidget {
-  const SevenDayForecast({Key? key}) : super(key: key);
-
+  const SevenDayForecast(
+      {Key? key,
+      required this.currentWeather,
+      required this.weatherAQI,
+      required this.forecastHourly})
+      : super(key: key);
+  final WeatherModel currentWeather;
+  final WeatherAQI weatherAQI;
+  final ForecastHourly forecastHourly;
   @override
   State<SevenDayForecast> createState() => _SevenDayForecastState();
 }
@@ -16,26 +21,10 @@ class SevenDayForecast extends StatefulWidget {
 class _SevenDayForecastState extends State<SevenDayForecast> {
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: getCurrentWeather(),
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        if (snapshot.hasData) {
-          WeatherModel weather = snapshot.data[0];
-          WeatherAQI weatherAQI = snapshot.data[1];
-          ForecastHourly weatherHourly = snapshot.data[2];
-          if (weather == null) {
-          } else {
-            return SevenDayTiles(
-                currentWeather: weather,
-                weatherAQI: weatherAQI,
-                forecastHourly: weatherHourly);
-          }
-        } else {
-          return const Center(child: CircularProgressIndicator());
-        }
-        return const Text('smthn went wrong');
-      },
-    );
+    return SevenDayTiles(
+        currentWeather: widget.currentWeather,
+        weatherAQI: widget.weatherAQI,
+        forecastHourly: widget.forecastHourly);
   }
 }
 
