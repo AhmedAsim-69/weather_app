@@ -290,7 +290,7 @@ class UserStack extends StatelessWidget {
                         ),
                         child: TextButton(
                           child: const Text(
-                            '7-Day Forecast',
+                            '5-Day Forecast',
                             style: TextStyle(color: Colors.white),
                           ),
                           onPressed: () {
