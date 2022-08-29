@@ -9,6 +9,7 @@ class UserSimplePreferences {
 
   static const _keyLatitude = 'keyLat';
   static const _keyLongitude = 'keyLon';
+  static const _keyCity = 'keyCity';
 
   static Future storeLatitude(String lat) async {
     await _preferences.setString(_keyLatitude, lat);
@@ -18,11 +19,19 @@ class UserSimplePreferences {
     await _preferences.setString(_keyLongitude, lon);
   }
 
+  static Future storeCity(String lon) async {
+    await _preferences.setString(_keyCity, lon);
+  }
+
   static String? getLatitude() {
     return _preferences.getString(_keyLatitude);
   }
 
   static String? getLongitude() {
     return _preferences.getString(_keyLongitude);
+  }
+
+  static String? getCity() {
+    return _preferences.getString(_keyCity);
   }
 }

@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:ui';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +13,7 @@ import 'package:weather_app/models/forecast.dart';
 import 'package:weather_app/models/time.dart';
 import 'package:weather_app/models/weather.dart';
 import 'package:weather_app/pages/seven_day_forecast.dart';
+import 'package:weather_app/services/cities.dart';
 import 'package:weather_app/services/shared_preferences.dart';
 import 'package:weather_app/services/weather_bloc.dart';
 import 'package:weather_app/widgets/hourly_forecast.dart';
@@ -26,17 +28,16 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+String? city;
+
 class _MyHomePageState extends State<MyHomePage> {
-  // LocationData? currentLocation;
-  // StreamSubscription<LocationData>? locationSubscription;
   Location locationService = Location();
+  final _locationService = Location();
   String error = '';
   String lat = '0';
   String lon = '0';
   LocationData? _currentLocation;
-  StreamSubscription<LocationData>? _locationSubscription;
-
-  final _locationService = Location();
+  StreamSubscription<LocationData>? locationSubscription;
 
   @override
   void initState() {
@@ -44,16 +45,16 @@ class _MyHomePageState extends State<MyHomePage> {
     initPlatformState();
     lat = UserSimplePreferences.getLatitude() ?? '0';
     lon = UserSimplePreferences.getLongitude() ?? '0';
+    city = UserSimplePreferences.getCity() ?? null;
   }
 
   @override
   Widget build(BuildContext context) {
-    log('123');
     return BlocBuilder<WeatherBloc, WeatherState>(
       builder: (context, state) {
         initPlatformState();
 
-        _locationSubscription = _locationService.onLocationChanged
+        locationSubscription = _locationService.onLocationChanged
             .listen((LocationData currentLocation) async {
           setState(() async {
             _currentLocation = currentLocation;
@@ -62,11 +63,14 @@ class _MyHomePageState extends State<MyHomePage> {
             lon = _currentLocation!.longitude.toString();
             await UserSimplePreferences.storeLatitude(lat);
             await UserSimplePreferences.storeLongitude(lon);
+            if (city != null) {
+              await UserSimplePreferences.storeCity(city!);
+            }
           });
         });
 
         return FutureBuilder(
-          future: getCurrentWeather(lat, lon),
+          future: getCurrentWeather(lat, lon, city),
           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
             if (snapshot.hasData) {
               WeatherModel weather = snapshot.data[0];
@@ -119,6 +123,9 @@ class UserStack extends StatelessWidget {
   final WeatherModel currentWeather;
   String background = './images/bg_clear.png';
   late final bgWeather = currentWeather.weather![0].main;
+  final TextEditingController _typeAheadController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     if (bgWeather == 'Thunderstorm') {
@@ -167,19 +174,91 @@ class UserStack extends StatelessWidget {
                   backgroundColor: Colors.transparent,
                   body: Column(
                     children: [
+                      // SizedBox(
+                      //   height: 40,
+                      //   child: TextFormField(
+                      //     textAlignVertical: TextAlignVertical.bottom,
+                      //     textAlign: TextAlign.center,
+                      //     decoration: InputDecoration(
+                      //       hintText: "Search Cities",
+                      //       filled: true,
+                      //       fillColor: Colors.white,
+                      //       border: OutlineInputBorder(
+                      //         borderRadius: BorderRadius.circular(30),
+                      //       ),
+                      //       prefixIcon: const Icon(Icons.search),
+                      //     ),
+                      //     onFieldSubmitted: (value) async {
+                      //       city = value;
+                      //       await UserSimplePreferences.storeCity(city!);
+
+                      //       Navigator.of(context).push(MaterialPageRoute(
+                      //           builder: (context) => BlocProvider(
+                      //                 create: (context) => WeatherBloc(),
+                      //                 child: const MyHomePage(
+                      //                     title: 'Flutter Demo Home Page'),
+                      //               )));
+                      //     },
+                      //   ),
+                      // ),
                       SizedBox(
                         height: 40,
-                        child: TextFormField(
-                          textAlignVertical: TextAlignVertical.bottom,
-                          textAlign: TextAlign.center,
-                          decoration: InputDecoration(
-                            hintText: "Search Cities",
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30),
+                        child: Form(
+                          key: _formKey,
+                          child: TypeAheadFormField(
+                            textFieldConfiguration: TextFieldConfiguration(
+                              textAlignVertical: TextAlignVertical.bottom,
+                              textAlign: TextAlign.center,
+                              controller: _typeAheadController,
+                              decoration: InputDecoration(
+                                hintText: "Search Cities",
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: const OutlineInputBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(30))),
+                                prefixIcon: const Icon(Icons.search),
+                                suffixIcon: IconButton(
+                                  icon: const Icon(
+                                    Icons.check,
+                                    color: Colors.grey,
+                                  ),
+                                  onPressed: () {
+                                    if (_formKey.currentState!.validate()) {
+                                      _formKey.currentState!.save();
+                                    }
+                                  },
+                                ),
+                              ),
                             ),
-                            prefixIcon: const Icon(Icons.search),
+                            suggestionsCallback: (pattern) {
+                              return CitiesService.getSuggestions(pattern);
+                            },
+                            itemBuilder: (context, suggestion) {
+                              return ListTile(
+                                title: Text(suggestion.toString()),
+                              );
+                            },
+                            transitionBuilder:
+                                (context, suggestionsBox, controller) {
+                              return suggestionsBox;
+                            },
+                            onSuggestionSelected: (suggestion) {
+                              _typeAheadController.text = suggestion.toString();
+                            },
+                            onSaved: (value) async {
+                              city = _typeAheadController.text;
+                              if (city != null) {
+                                await UserSimplePreferences.storeCity(city!);
+                              }
+
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => BlocProvider(
+                                        create: (context) => WeatherBloc(),
+                                        child: const MyHomePage(
+                                            title: 'Flutter Demo Home Page'),
+                                      )));
+                            },
                           ),
                         ),
                       ),

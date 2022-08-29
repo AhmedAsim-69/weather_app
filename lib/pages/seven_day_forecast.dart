@@ -61,7 +61,7 @@ class SevenDayTiles extends StatelessWidget {
         ),
         backgroundColor: Colors.transparent,
         body: Stack(
-          // alignment: Alignment.center,
+          alignment: Alignment.center,
           children: <Widget>[
             SizedBox(
               height: MediaQuery.of(context).size.height,
@@ -71,7 +71,7 @@ class SevenDayTiles extends StatelessWidget {
               top: MediaQuery.of(context).size.height * 0.01,
               left: MediaQuery.of(context).size.height * 0.02,
               child: const Text(
-                '7-day Forecast',
+                '5-day Forecast',
                 style: TextStyle(
                   fontSize: 20,
                   color: Colors.white,
