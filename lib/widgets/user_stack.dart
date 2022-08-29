@@ -347,11 +347,11 @@ class UserStack extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Column(
-                    children: const [
+                    children: [
                       InfoCard(
                           label1: 'Air Quality Index',
                           label2: '',
-                          text1: "17",
+                          text1: "${weatherAQI.main![0].aqi}",
                           text2: "Full air quality forecast",
                           textSize2: 14),
                     ],
