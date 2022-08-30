@@ -233,6 +233,9 @@ class UserStack extends StatelessWidget {
                       wind:
                           (currentWeather.wind!.speed * 3.6).toStringAsFixed(2),
                     ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.02,
+                    ),
                     HourlyForecast(
                       time: getTimeFromTimestamp(forecastHourly.hourly[0].dt),
                       temp: '${forecastHourly.hourly[0].main!.temp.round()}',
@@ -240,12 +243,21 @@ class UserStack extends StatelessWidget {
                       wind: (forecastHourly.hourly[0].wind!.speed * 3.6)
                           .toStringAsFixed(2),
                     ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.02,
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.02,
+                    ),
                     HourlyForecast(
                       time: getTimeFromTimestamp(forecastHourly.hourly[1].dt),
                       temp: '${forecastHourly.hourly[1].main!.temp.round()}',
                       icon: forecastHourly.hourly[1].weather![0].main,
                       wind: (forecastHourly.hourly[1].wind!.speed * 3.6)
                           .toStringAsFixed(2),
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.02,
                     ),
                     HourlyForecast(
                       time: getTimeFromTimestamp(forecastHourly.hourly[2].dt),
