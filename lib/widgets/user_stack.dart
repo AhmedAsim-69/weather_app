@@ -142,13 +142,26 @@ class UserStack extends StatelessWidget {
                               if (city != null) {
                                 await UserSimplePreferences.storeCity(city!);
                               }
-
-                              Navigator.of(context).push(MaterialPageRoute(
+                              Navigator.pushAndRemoveUntil<dynamic>(
+                                context,
+                                MaterialPageRoute<dynamic>(
                                   builder: (context) => BlocProvider(
-                                        create: (context) => WeatherBloc(),
-                                        child: const MyHomePage(
-                                            title: 'Flutter Demo Home Page'),
-                                      )));
+                                    create: (context) => WeatherBloc(),
+                                    child:
+                                        const MyHomePage(title: 'Weather App'),
+                                  ),
+                                ),
+                                (route) => false,
+                              );
+                              // Navigator.of(context).pushAndRemoveUntil(
+                              //     MaterialPageRoute(
+                              //       builder: (context) => BlocProvider(
+                              //         create: (context) => WeatherBloc(),
+                              //         child: const MyHomePage(
+                              //             title: 'Flutter Demo Home Page'),
+                              //       ),
+                              //     ),
+                              //     (Route<dynamic> route) => false);
                             },
                           ),
                         ),

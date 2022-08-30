@@ -1,4 +1,5 @@
 // ignore_for_file: must_be_immutable
+
 import 'package:flutter/material.dart';
 
 import 'dart:async';
@@ -20,7 +21,7 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-String? city;
+String? city = 'null';
 
 class _MyHomePageState extends State<MyHomePage> {
   Location locationService = Location();
@@ -44,22 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return BlocBuilder<WeatherBloc, WeatherState>(
       builder: (context, state) {
-        initPlatformState();
-
-        locationSubscription = _locationService.onLocationChanged
-            .listen((LocationData currentLocation) async {
-          setState(() async {
-            _currentLocation = currentLocation;
-
-            lat = _currentLocation!.latitude.toString();
-            lon = _currentLocation!.longitude.toString();
-            await UserSimplePreferences.storeLatitude(lat);
-            await UserSimplePreferences.storeLongitude(lon);
-            if (city != null) {
-              await UserSimplePreferences.storeCity(city!);
-            }
-          });
-        });
+        updateLocation();
 
         return FutureBuilder(
           future: getCurrentWeather(lat, lon, city),
@@ -72,7 +58,8 @@ class _MyHomePageState extends State<MyHomePage> {
               if (snapshot.hasError) {
                 return Text('${snapshot.data}');
               }
-              if (snapshot.connectionState == ConnectionState.waiting) {
+              if (snapshot.connectionState == ConnectionState.waiting &&
+                  snapshot.hasData) {
                 return const Center(
                   child: CircularProgressIndicator(),
                 );
@@ -80,17 +67,27 @@ class _MyHomePageState extends State<MyHomePage> {
               if (snapshot.connectionState == ConnectionState.active ||
                   snapshot.connectionState == ConnectionState.done) {
                 if (snapshot.hasData) {
-                  return UserStack(
-                      currentWeather: weather,
-                      weatherAQI: weatherAQI,
-                      forecastHourly: weatherHourly);
+                  return RefreshIndicator(
+                      child: UserStack(
+                          currentWeather: weather,
+                          weatherAQI: weatherAQI,
+                          forecastHourly: weatherHourly),
+                      onRefresh: () {
+                        city = 'null';
+                        UserSimplePreferences.storeCity(city!);
+                        Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                              builder: (context) => BlocProvider(
+                                create: (context) => WeatherBloc(),
+                                child: const MyHomePage(title: 'Weather App'),
+                              ),
+                            ),
+                            (Route<dynamic> route) => false);
+
+                        return updateLocation();
+                      });
                 }
-              } else {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
               }
-              return const Text("Working to get data");
             }
             return const Center(
               child: CircularProgressIndicator(),
@@ -99,6 +96,23 @@ class _MyHomePageState extends State<MyHomePage> {
         );
       },
     );
+  }
+
+  Future<void> updateLocation() async {
+    initPlatformState();
+
+    locationSubscription = _locationService.onLocationChanged
+        .listen((LocationData currentLocation) async {
+      _currentLocation = currentLocation;
+
+      lat = _currentLocation!.latitude.toString();
+      lon = _currentLocation!.longitude.toString();
+      await UserSimplePreferences.storeLatitude(lat);
+      await UserSimplePreferences.storeLongitude(lon);
+      if (city != null) {
+        await UserSimplePreferences.storeCity(city!);
+      }
+    });
   }
 
   void initPlatformState() async {

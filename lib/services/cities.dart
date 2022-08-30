@@ -1,8 +1,6 @@
 class CitiesService {
   static final List<String> cities = [
     "Ahmadpur East",
-    "Ahmed Nager Chatha",
-    "Ali Khan Abad",
     "Alipur",
     "Arifwala",
     "Attock",
@@ -86,11 +84,11 @@ class CitiesService {
     "Okara",
     "Pakpattan",
     "Pattoki",
+    "Peshawar",
     "Pindi Bhattian",
     "Pind Dadan Khan",
     "Pir Mahal",
     "Qaimpur",
-    "Qila Didar Singh",
     "Raiwind",
     "Rajanpur",
     "Rahim Yar Khan",

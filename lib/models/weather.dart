@@ -196,14 +196,14 @@ Future<List> getCurrentWeather([String? lat, String? lon, String? city]) async {
   ForecastHourly weatherHourly = ForecastHourly(hourly: []);
   String API = 'f85916ee555786a3c8cdd4ee9d1b19f1';
 
-  http.Response response = (city == null)
+  http.Response response = (city == null || city == 'null')
       ? await http.get(Uri.parse(
           'https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=$API&units=metric'))
       : await http.get(Uri.parse(
           'https://api.openweathermap.org/data/2.5/weather?q=$city&appid=$API&units=metric'));
   http.Response responseAQI = await http.get(Uri.parse(
       'https://api.openweathermap.org/data/2.5/air_pollution?lat=$lat&lon=$lon&appid=$API&units=metric'));
-  http.Response responseHourly = (city == null)
+  http.Response responseHourly = (city == null || city == 'null')
       ? await http.get(Uri.parse(
           'https://api.openweathermap.org/data/2.5/forecast?lat=$lat&lon=$lon&appid=$API&units=metric'))
       : await http.get(Uri.parse(

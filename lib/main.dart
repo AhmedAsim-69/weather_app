@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Weather App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         fontFamily: "Typography",
@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
       ),
       home: BlocProvider(
         create: (context) => WeatherBloc(),
-        child: const MyHomePage(title: 'Flutter Demo Home Page'),
+        child: const MyHomePage(title: 'Weather App'),
       ),
     );
   }

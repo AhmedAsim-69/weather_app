@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserSimplePreferences {
@@ -12,15 +14,18 @@ class UserSimplePreferences {
   static const _keyCity = 'keyCity';
 
   static Future storeLatitude(String lat) async {
+    log('Sav lat = $lat');
     await _preferences.setString(_keyLatitude, lat);
   }
 
   static Future storeLongitude(String lon) async {
+    log('Sav lon = $lon');
     await _preferences.setString(_keyLongitude, lon);
   }
 
-  static Future storeCity(String lon) async {
-    await _preferences.setString(_keyCity, lon);
+  static Future storeCity(String city) async {
+    log('Sav city = $city');
+    await _preferences.setString(_keyCity, city);
   }
 
   static String? getLatitude() {
