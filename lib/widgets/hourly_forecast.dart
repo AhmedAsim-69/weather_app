@@ -62,7 +62,7 @@ class HourlyForecast extends StatelessWidget {
               width: 15,
             ),
             Text(
-              ' $wind km/h ',
+              '$wind km/h',
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 14,

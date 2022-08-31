@@ -50,6 +50,7 @@ class SevenDayTiles extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
           leading: IconButton(
             icon: const Icon(
               Icons.arrow_back,

@@ -1,5 +1,6 @@
 // ignore_for_file: must_be_immutable
 
+
 import 'package:flutter/material.dart';
 
 import 'dart:ui';
@@ -33,9 +34,14 @@ class UserStack extends StatelessWidget {
   late final bgWeather = currentWeather.weather![0].main;
   final TextEditingController _typeAheadController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   @override
   Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
+
+    if (MediaQuery.of(context).orientation == Orientation.landscape) {
+      height = MediaQuery.of(context).size.width;
+    }
+
     if (bgWeather == 'Thunderstorm') {
       background = './images/bg_thunderstorm.png';
     } else if (bgWeather == 'Drizzle' || bgWeather == 'Rain') {
@@ -59,11 +65,11 @@ class UserStack extends StatelessWidget {
             alignment: Alignment.center,
             children: <Widget>[
               SizedBox(
-                height: MediaQuery.of(context).size.height * 1.6,
+                height: height * 1.6,
                 width: MediaQuery.of(context).size.width,
               ),
               Positioned(
-                top: MediaQuery.of(context).size.height * 0.07,
+                top: height * 0.05,
                 child: Text(
                   "${currentWeather.name}",
                   textAlign: TextAlign.center,
@@ -74,7 +80,7 @@ class UserStack extends StatelessWidget {
                 ),
               ),
               Positioned(
-                top: MediaQuery.of(context).size.height * 0.13,
+                top: height * 0.12,
                 bottom: 0,
                 left: MediaQuery.of(context).size.width * 0.05,
                 right: MediaQuery.of(context).size.width * 0.05,
@@ -139,8 +145,8 @@ class UserStack extends StatelessWidget {
                             },
                             onSaved: (value) async {
                               city = _typeAheadController.text;
-                              if (city != null) {
-                                await UserSimplePreferences.storeCity(city!);
+                              if (city != 'null') {
+                                await UserSimplePreferences.storeCity(city);
                               }
                               Navigator.pushAndRemoveUntil<dynamic>(
                                 context,
@@ -153,15 +159,6 @@ class UserStack extends StatelessWidget {
                                 ),
                                 (route) => false,
                               );
-                              // Navigator.of(context).pushAndRemoveUntil(
-                              //     MaterialPageRoute(
-                              //       builder: (context) => BlocProvider(
-                              //         create: (context) => WeatherBloc(),
-                              //         child: const MyHomePage(
-                              //             title: 'Flutter Demo Home Page'),
-                              //       ),
-                              //     ),
-                              //     (Route<dynamic> route) => false);
                             },
                           ),
                         ),
@@ -171,11 +168,11 @@ class UserStack extends StatelessWidget {
                 ),
               ),
               Positioned(
-                top: MediaQuery.of(context).size.height * 0.25,
+                top: height * 0.22,
                 child: Column(
                   children: [
                     SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.24,
+                      height: height * 0.24,
                       child: Text(
                         "${currentWeather.main?.temp.round()}\u2103",
                         style: const TextStyle(
@@ -222,57 +219,58 @@ class UserStack extends StatelessWidget {
                 ),
               ),
               Positioned(
-                top: MediaQuery.of(context).size.height * 0.62,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    HourlyForecast(
-                      time: 'Now',
-                      temp: '${currentWeather.main!.temp.round()}',
-                      icon: currentWeather.weather![0].main,
-                      wind:
-                          (currentWeather.wind!.speed * 3.6).toStringAsFixed(2),
-                    ),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.02,
-                    ),
-                    HourlyForecast(
-                      time: getTimeFromTimestamp(forecastHourly.hourly[0].dt),
-                      temp: '${forecastHourly.hourly[0].main!.temp.round()}',
-                      icon: forecastHourly.hourly[0].weather![0].main,
-                      wind: (forecastHourly.hourly[0].wind!.speed * 3.6)
-                          .toStringAsFixed(2),
-                    ),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.02,
-                    ),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.02,
-                    ),
-                    HourlyForecast(
-                      time: getTimeFromTimestamp(forecastHourly.hourly[1].dt),
-                      temp: '${forecastHourly.hourly[1].main!.temp.round()}',
-                      icon: forecastHourly.hourly[1].weather![0].main,
-                      wind: (forecastHourly.hourly[1].wind!.speed * 3.6)
-                          .toStringAsFixed(2),
-                    ),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.02,
-                    ),
-                    HourlyForecast(
-                      time: getTimeFromTimestamp(forecastHourly.hourly[2].dt),
-                      temp: '${forecastHourly.hourly[2].main!.temp.round()}',
-                      icon: forecastHourly.hourly[2].weather![0].main,
-                      wind: (forecastHourly.hourly[2].wind!.speed * 3.6)
-                          .toStringAsFixed(2),
-                    ),
-                  ],
+                top: height * 0.62,
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.92,
+                  alignment: Alignment.center,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      HourlyForecast(
+                        time: 'Now',
+                        temp: '${currentWeather.main!.temp.round()}',
+                        icon: currentWeather.weather![0].main,
+                        wind: (currentWeather.wind!.speed * 3.6)
+                            .toStringAsFixed(2),
+                      ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.02,
+                      ),
+                      HourlyForecast(
+                        time: getTimeFromTimestamp(forecastHourly.hourly[0].dt),
+                        temp: '${forecastHourly.hourly[0].main!.temp.round()}',
+                        icon: forecastHourly.hourly[0].weather![0].main,
+                        wind: (forecastHourly.hourly[0].wind!.speed * 3.6)
+                            .toStringAsFixed(2),
+                      ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.02,
+                      ),
+                      HourlyForecast(
+                        time: getTimeFromTimestamp(forecastHourly.hourly[1].dt),
+                        temp: '${forecastHourly.hourly[1].main!.temp.round()}',
+                        icon: forecastHourly.hourly[1].weather![0].main,
+                        wind: (forecastHourly.hourly[1].wind!.speed * 3.6)
+                            .toStringAsFixed(2),
+                      ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.02,
+                      ),
+                      HourlyForecast(
+                        time: getTimeFromTimestamp(forecastHourly.hourly[2].dt),
+                        temp: '${forecastHourly.hourly[2].main!.temp.round()}',
+                        icon: forecastHourly.hourly[2].weather![0].main,
+                        wind: (forecastHourly.hourly[2].wind!.speed * 3.6)
+                            .toStringAsFixed(2),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               Positioned(
-                top: MediaQuery.of(context).size.height * 0.8,
+                top: height * 0.8,
                 child: Container(
-                  width: MediaQuery.of(context).size.width * 0.95,
+                  width: MediaQuery.of(context).size.width * 0.9,
                   decoration: BoxDecoration(
                     color: const Color.fromARGB(125, 255, 255, 255),
                     borderRadius: BorderRadius.circular(10),
@@ -302,7 +300,7 @@ class UserStack extends StatelessWidget {
                 ),
               ),
               Positioned(
-                top: MediaQuery.of(context).size.height * 1.02,
+                top: height * 1.02,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: BackdropFilter(
@@ -333,9 +331,9 @@ class UserStack extends StatelessWidget {
                 ),
               ),
               Positioned(
-                top: MediaQuery.of(context).size.height * 1.11,
+                top: height * 1.11,
                 child: Container(
-                  width: MediaQuery.of(context).size.width * 0.95,
+                  width: MediaQuery.of(context).size.width * 0.9,
                   decoration: BoxDecoration(
                     color: const Color.fromARGB(125, 255, 255, 255),
                     borderRadius: BorderRadius.circular(10),
@@ -364,9 +362,9 @@ class UserStack extends StatelessWidget {
                 ),
               ),
               Positioned(
-                top: MediaQuery.of(context).size.height * 1.47,
+                top: height * 1.47,
                 child: Container(
-                  width: MediaQuery.of(context).size.width * 0.95,
+                  width: MediaQuery.of(context).size.width * 0.9,
                   decoration: BoxDecoration(
                     color: const Color.fromARGB(125, 255, 255, 255),
                     borderRadius: BorderRadius.circular(10),

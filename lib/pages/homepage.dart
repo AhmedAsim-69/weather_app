@@ -21,7 +21,7 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-String? city = 'null';
+String city = 'null';
 
 class _MyHomePageState extends State<MyHomePage> {
   Location locationService = Location();
@@ -38,7 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
     initPlatformState();
     lat = UserSimplePreferences.getLatitude() ?? '0';
     lon = UserSimplePreferences.getLongitude() ?? '0';
-    city = UserSimplePreferences.getCity();
+    city = UserSimplePreferences.getCity() ?? 'null';
   }
 
   @override
@@ -74,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           forecastHourly: weatherHourly),
                       onRefresh: () {
                         city = 'null';
-                        UserSimplePreferences.storeCity(city!);
+                        UserSimplePreferences.storeCity(city);
                         Navigator.of(context).pushAndRemoveUntil(
                             MaterialPageRoute(
                               builder: (context) => BlocProvider(
@@ -109,8 +109,8 @@ class _MyHomePageState extends State<MyHomePage> {
       lon = _currentLocation!.longitude.toString();
       await UserSimplePreferences.storeLatitude(lat);
       await UserSimplePreferences.storeLongitude(lon);
-      if (city != null) {
-        await UserSimplePreferences.storeCity(city!);
+      if (city != 'null') {
+        await UserSimplePreferences.storeCity(city);
       }
     });
   }
