@@ -42,7 +42,6 @@ dependencies:
   csc_picker: ^0.2.6
   flutter_typeahead: ^4.0.0
   device_preview: ^1.1.0
-  permission_handler: ^10.0.0
 
 dev_dependencies:
   flutter_lints: 1.0.4
