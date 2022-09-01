@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
 import 'package:weather_app/models/forecast.dart';
-import 'package:weather_app/models/time.dart';
+import 'package:weather_app/utils/constants.dart';
 import 'package:weather_app/models/weather.dart';
 import 'package:weather_app/widgets/daily_forecast.dart';
 
 class SevenDayForecast extends StatefulWidget {
-  const SevenDayForecast(
-      {Key? key,
-      required this.currentWeather,
-      required this.weatherAQI,
-      required this.forecastHourly})
-      : super(key: key);
+  const SevenDayForecast({
+    Key? key,
+    required this.currentWeather,
+    required this.weatherAQI,
+    required this.forecastHourly,
+  }) : super(key: key);
   final WeatherModel currentWeather;
   final WeatherAQI weatherAQI;
   final ForecastHourly forecastHourly;
@@ -23,9 +23,10 @@ class _SevenDayForecastState extends State<SevenDayForecast> {
   @override
   Widget build(BuildContext context) {
     return SevenDayTiles(
-        currentWeather: widget.currentWeather,
-        weatherAQI: widget.weatherAQI,
-        forecastHourly: widget.forecastHourly);
+      currentWeather: widget.currentWeather,
+      weatherAQI: widget.weatherAQI,
+      forecastHourly: widget.forecastHourly,
+    );
   }
 }
 
@@ -43,10 +44,12 @@ class SevenDayTiles extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-          gradient: LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.topRight,
-              colors: [Color.fromARGB(255, 0, 68, 255), Colors.lightBlue])),
+        gradient: LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.topRight,
+          colors: [Color.fromARGB(255, 0, 68, 255), Colors.lightBlue],
+        ),
+      ),
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.transparent,
@@ -91,32 +94,45 @@ class SevenDayTiles extends StatelessWidget {
                   DailyForecast(
                     day: 'Today',
                     temp: '${currentWeather.main!.temp.round()}',
-                    icon: currentWeather.weather![0].main,
-                    date: getDateFromTimestamp(currentWeather.dt),
+                    icon: currentWeather.weather![0].icon,
+                    date: Constants.getDateFromTimestamp(
+                      currentWeather.dt,
+                    ),
                   ),
                   DailyForecast(
                     day: 'Tomorrow',
                     temp: '${forecastHourly.hourly[7].main!.temp.round()}',
-                    icon: forecastHourly.hourly[7].weather![0].main,
-                    date: getDateFromTimestamp(forecastHourly.hourly[7].dt),
+                    icon: forecastHourly.hourly[7].weather![0].icon,
+                    date: Constants.getDateFromTimestamp(
+                      forecastHourly.hourly[7].dt,
+                    ),
                   ),
                   DailyForecast(
-                    day: getDayFromTimestamp(forecastHourly.hourly[14].dt),
+                    day: Constants.getDayFromTimestamp(
+                        forecastHourly.hourly[14].dt),
                     temp: '${forecastHourly.hourly[14].main!.temp.round()}',
-                    icon: forecastHourly.hourly[14].weather![0].main,
-                    date: getDateFromTimestamp(forecastHourly.hourly[14].dt),
+                    icon: forecastHourly.hourly[14].weather![0].icon,
+                    date: Constants.getDateFromTimestamp(
+                      forecastHourly.hourly[14].dt,
+                    ),
                   ),
                   DailyForecast(
-                    day: getDayFromTimestamp(forecastHourly.hourly[21].dt),
+                    day: Constants.getDayFromTimestamp(
+                        forecastHourly.hourly[21].dt),
                     temp: '${forecastHourly.hourly[21].main!.temp.round()}',
-                    icon: forecastHourly.hourly[21].weather![0].main,
-                    date: getDateFromTimestamp(forecastHourly.hourly[21].dt),
+                    icon: forecastHourly.hourly[21].weather![0].icon,
+                    date: Constants.getDateFromTimestamp(
+                      forecastHourly.hourly[21].dt,
+                    ),
                   ),
                   DailyForecast(
-                    day: getDayFromTimestamp(forecastHourly.hourly[28].dt),
+                    day: Constants.getDayFromTimestamp(
+                        forecastHourly.hourly[28].dt),
                     temp: '${forecastHourly.hourly[28].main!.temp.round()}',
-                    icon: forecastHourly.hourly[28].weather![0].main,
-                    date: getDateFromTimestamp(forecastHourly.hourly[28].dt),
+                    icon: forecastHourly.hourly[28].weather![0].icon,
+                    date: Constants.getDateFromTimestamp(
+                      forecastHourly.hourly[28].dt,
+                    ),
                   ),
                 ],
               ),

@@ -1,9 +1,8 @@
-// ignore_for_file: must_be_immutable
-
 import 'package:flutter/material.dart';
+import 'package:weather_app/utils/assets.dart';
 
 class HourlyForecast extends StatelessWidget {
-  HourlyForecast({
+  const HourlyForecast({
     Key? key,
     required this.icon,
     required this.time,
@@ -16,18 +15,8 @@ class HourlyForecast extends StatelessWidget {
   final String wind;
   final String temp;
 
-  String displayIcon = './images/sunny.png';
   @override
   Widget build(BuildContext context) {
-    if (icon == 'Thunderstorm') {
-      displayIcon = './images/thunderstorm.png';
-    } else if (icon == 'Drizzle' || icon == 'Rain') {
-      displayIcon = './images/rainy_cloud.png';
-    } else if (icon == 'Clear') {
-      displayIcon = './images/sunny.png';
-    } else if (icon == 'Clouds') {
-      displayIcon = './images/cloud.png';
-    }
     return Column(
       children: [
         Text(
@@ -50,14 +39,14 @@ class HourlyForecast extends StatelessWidget {
           ],
         ),
         Image.asset(
-          displayIcon,
+          'assets/images/$icon.png',
           height: 22,
           width: 32,
         ),
         Row(
           children: [
             Image.asset(
-              './images/wind.png',
+              Assets.wind,
               height: 15,
               width: 15,
             ),

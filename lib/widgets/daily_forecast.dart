@@ -1,9 +1,7 @@
-// ignore_for_file: must_be_immutable
-
 import 'package:flutter/material.dart';
 
 class DailyForecast extends StatelessWidget {
-  DailyForecast({
+  const DailyForecast({
     Key? key,
     required this.icon,
     required this.day,
@@ -16,18 +14,8 @@ class DailyForecast extends StatelessWidget {
   final String date;
   final String temp;
 
-  String displayIcon = './images/sunny.png';
   @override
   Widget build(BuildContext context) {
-    if (icon == 'Thunderstorm') {
-      displayIcon = './images/thunderstorm.png';
-    } else if (icon == 'Drizzle' || icon == 'Rain') {
-      displayIcon = './images/rainy_cloud.png';
-    } else if (icon == 'Clear') {
-      displayIcon = './images/sunny.png';
-    } else if (icon == 'Clouds') {
-      displayIcon = './images/cloud.png';
-    }
     return Column(
       children: [
         Text(
@@ -44,10 +32,13 @@ class DailyForecast extends StatelessWidget {
             fontSize: 9,
           ),
         ),
-        Image.asset(
-          displayIcon,
-          height: 50,
-          width: 50,
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Image.asset(
+            'assets/images/$icon.png',
+            height: 50,
+            width: 50,
+          ),
         ),
         Text(
           "$temp\u2103",

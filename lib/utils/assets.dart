@@ -1,0 +1,29 @@
+class Assets {
+  static const String _imageDir = 'assets/images';
+  static const String o1d = '$_imageDir/01d.png';
+  static const String o1n = '$_imageDir/01n.png';
+  static const String o2d = '$_imageDir/02d.png';
+  static const String o2n = '$_imageDir/02n.png';
+  static const String o3d = '$_imageDir/03d.png';
+  static const String o3n = '$_imageDir/03n.png';
+  static const String o4d = '$_imageDir/04d.png';
+  static const String o4n = '$_imageDir/04n.png';
+  static const String o9d = '$_imageDir/09d.png';
+  static const String o9n = '$_imageDir/09n.png';
+  static const String o10d = '$_imageDir/010d.png';
+  static const String o10n = '$_imageDir/010n.png';
+  static const String o11d = '$_imageDir/011d.png';
+  static const String o11n = '$_imageDir/011n.png';
+  static const String o13d = '$_imageDir/013d.png';
+  static const String o13n = '$_imageDir/013n.png';
+  static const String o50d = '$_imageDir/050d.png';
+  static const String o50n = '$_imageDir/050n.png';
+  static const String clear = '$_imageDir/Clear.png';
+  static const String clouds = '$_imageDir/Clouds.png';
+  static const String drizzle = '$_imageDir/Drizzle.png';
+  static const String rain = '$_imageDir/Rain.png';
+  static const String thunderStorm = '$_imageDir/Thunderstorm.png';
+  static const String partialCloudy = '$_imageDir/Partial_Cloudy.png';
+  static const String leaf = '$_imageDir/leaf.png';
+  static const String wind = '$_imageDir/wind.png';
+}

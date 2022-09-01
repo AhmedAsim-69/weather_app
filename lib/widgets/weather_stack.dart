@@ -1,6 +1,5 @@
 // ignore_for_file: must_be_immutable
 
-
 import 'package:flutter/material.dart';
 
 import 'dart:ui';
@@ -8,53 +7,58 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:weather_app/models/forecast.dart';
-import 'package:weather_app/models/time.dart';
+import 'package:weather_app/utils/assets.dart';
+import 'package:weather_app/utils/constants.dart';
 import 'package:weather_app/models/weather.dart';
 import 'package:weather_app/pages/homepage.dart';
 import 'package:weather_app/pages/seven_day_forecast.dart';
-import 'package:weather_app/services/cities.dart';
-import 'package:weather_app/services/shared_preferences.dart';
+import 'package:weather_app/services/cities_service.dart';
+import 'package:weather_app/services/user_simple_preferences.dart';
 import 'package:weather_app/services/weather_bloc.dart';
 import 'package:weather_app/widgets/hourly_forecast.dart';
 import 'package:weather_app/widgets/info_card.dart';
 import 'package:weather_app/widgets/three_day_tile.dart';
 
-class UserStack extends StatelessWidget {
-  UserStack({
+class WeatherStack extends StatelessWidget {
+  WeatherStack({
     Key? key,
     required this.currentWeather,
     required this.weatherAQI,
     required this.forecastHourly,
+    required this.city,
   }) : super(key: key);
 
+  String city;
   final ForecastHourly forecastHourly;
   final WeatherAQI weatherAQI;
   final WeatherModel currentWeather;
-  String background = './images/bg_clear.png';
-  late final bgWeather = currentWeather.weather![0].main;
+  late final _bgWeather = (currentWeather.weather![0].main == 'Clear')
+      ? Assets.clear
+      : (currentWeather.weather![0].main == 'Clouds' ||
+              currentWeather.weather![0].main == 'Smoke')
+          ? Assets.clouds
+          : (currentWeather.weather![0].main == 'Drizzle')
+              ? Assets.drizzle
+              : (currentWeather.weather![0].main == 'Rain')
+                  ? Assets.rain
+                  : (currentWeather.weather![0].main == 'Thunderstorm')
+                      ? Assets.thunderStorm
+                      : Assets.clear;
   final TextEditingController _typeAheadController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
-    double height = MediaQuery.of(context).size.height;
+    double _height = MediaQuery.of(context).size.height;
 
     if (MediaQuery.of(context).orientation == Orientation.landscape) {
-      height = MediaQuery.of(context).size.width;
+      _height = MediaQuery.of(context).size.width;
     }
 
-    if (bgWeather == 'Thunderstorm') {
-      background = './images/bg_thunderstorm.png';
-    } else if (bgWeather == 'Drizzle' || bgWeather == 'Rain') {
-      background = './images/bg_rain.png';
-    } else if (bgWeather == 'Clear' || bgWeather == 'Haze') {
-      background = './images/bg_clear.png';
-    } else if (bgWeather == 'Clouds' || bgWeather == 'Smoke') {
-      background = './images/bg_cloudy.png';
-    }
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage(background),
+          image: AssetImage(_bgWeather),
           fit: BoxFit.cover,
         ),
       ),
@@ -65,11 +69,11 @@ class UserStack extends StatelessWidget {
             alignment: Alignment.center,
             children: <Widget>[
               SizedBox(
-                height: height * 1.6,
+                height: _height * 1.6,
                 width: MediaQuery.of(context).size.width,
               ),
               Positioned(
-                top: height * 0.05,
+                top: _height * 0.07,
                 child: Text(
                   "${currentWeather.name}",
                   textAlign: TextAlign.center,
@@ -80,7 +84,7 @@ class UserStack extends StatelessWidget {
                 ),
               ),
               Positioned(
-                top: height * 0.12,
+                top: _height * 0.15,
                 bottom: 0,
                 left: MediaQuery.of(context).size.width * 0.05,
                 right: MediaQuery.of(context).size.width * 0.05,
@@ -168,11 +172,11 @@ class UserStack extends StatelessWidget {
                 ),
               ),
               Positioned(
-                top: height * 0.22,
+                top: _height * 0.22,
                 child: Column(
                   children: [
                     SizedBox(
-                      height: height * 0.24,
+                      height: _height * 0.24,
                       child: Text(
                         "${currentWeather.main?.temp.round()}\u2103",
                         style: const TextStyle(
@@ -199,7 +203,7 @@ class UserStack extends StatelessWidget {
                                 child: FittedBox(
                                   fit: BoxFit.cover,
                                   child: ImageIcon(
-                                    AssetImage("images/leaf.png"),
+                                    AssetImage(Assets.leaf),
                                     color: Colors.white,
                                     size: 24,
                                   ),
@@ -219,9 +223,9 @@ class UserStack extends StatelessWidget {
                 ),
               ),
               Positioned(
-                top: height * 0.62,
+                top: _height * 0.62,
                 child: Container(
-                  width: MediaQuery.of(context).size.width * 0.92,
+                  width: MediaQuery.of(context).size.width * 0.96,
                   alignment: Alignment.center,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -229,7 +233,7 @@ class UserStack extends StatelessWidget {
                       HourlyForecast(
                         time: 'Now',
                         temp: '${currentWeather.main!.temp.round()}',
-                        icon: currentWeather.weather![0].main,
+                        icon: currentWeather.weather![0].icon,
                         wind: (currentWeather.wind!.speed * 3.6)
                             .toStringAsFixed(2),
                       ),
@@ -237,9 +241,11 @@ class UserStack extends StatelessWidget {
                         width: MediaQuery.of(context).size.width * 0.02,
                       ),
                       HourlyForecast(
-                        time: getTimeFromTimestamp(forecastHourly.hourly[0].dt),
+                        time: Constants.getTimeFromTimestamp(
+                          forecastHourly.hourly[0].dt,
+                        ),
                         temp: '${forecastHourly.hourly[0].main!.temp.round()}',
-                        icon: forecastHourly.hourly[0].weather![0].main,
+                        icon: forecastHourly.hourly[0].weather![0].icon,
                         wind: (forecastHourly.hourly[0].wind!.speed * 3.6)
                             .toStringAsFixed(2),
                       ),
@@ -247,9 +253,11 @@ class UserStack extends StatelessWidget {
                         width: MediaQuery.of(context).size.width * 0.02,
                       ),
                       HourlyForecast(
-                        time: getTimeFromTimestamp(forecastHourly.hourly[1].dt),
+                        time: Constants.getTimeFromTimestamp(
+                          forecastHourly.hourly[1].dt,
+                        ),
                         temp: '${forecastHourly.hourly[1].main!.temp.round()}',
-                        icon: forecastHourly.hourly[1].weather![0].main,
+                        icon: forecastHourly.hourly[1].weather![0].icon,
                         wind: (forecastHourly.hourly[1].wind!.speed * 3.6)
                             .toStringAsFixed(2),
                       ),
@@ -257,9 +265,11 @@ class UserStack extends StatelessWidget {
                         width: MediaQuery.of(context).size.width * 0.02,
                       ),
                       HourlyForecast(
-                        time: getTimeFromTimestamp(forecastHourly.hourly[2].dt),
+                        time: Constants.getTimeFromTimestamp(
+                          forecastHourly.hourly[2].dt,
+                        ),
                         temp: '${forecastHourly.hourly[2].main!.temp.round()}',
-                        icon: forecastHourly.hourly[2].weather![0].main,
+                        icon: forecastHourly.hourly[2].weather![0].icon,
                         wind: (forecastHourly.hourly[2].wind!.speed * 3.6)
                             .toStringAsFixed(2),
                       ),
@@ -268,7 +278,7 @@ class UserStack extends StatelessWidget {
                 ),
               ),
               Positioned(
-                top: height * 0.8,
+                top: _height * 0.8,
                 child: Container(
                   width: MediaQuery.of(context).size.width * 0.9,
                   decoration: BoxDecoration(
@@ -281,26 +291,27 @@ class UserStack extends StatelessWidget {
                         day: 'Today',
                         temp: '${forecastHourly.hourly[0].main!.temp.round()}',
                         weatherMain: forecastHourly.hourly[0].weather![0].main,
-                        icon: forecastHourly.hourly[0].weather![0].main,
+                        icon: forecastHourly.hourly[0].weather![0].icon,
                       ),
                       ThreeDayTile(
                         day: 'Tomorrow',
                         temp: '${forecastHourly.hourly[10].main!.temp.round()}',
                         weatherMain: forecastHourly.hourly[10].weather![0].main,
-                        icon: forecastHourly.hourly[10].weather![0].main,
+                        icon: forecastHourly.hourly[10].weather![0].icon,
                       ),
                       ThreeDayTile(
-                        day: getDayFromTimestamp(forecastHourly.hourly[15].dt),
+                        day: Constants.getDayFromTimestamp(
+                            forecastHourly.hourly[15].dt),
                         temp: '${forecastHourly.hourly[15].main!.temp.round()}',
                         weatherMain: forecastHourly.hourly[15].weather![0].main,
-                        icon: forecastHourly.hourly[15].weather![0].main,
+                        icon: forecastHourly.hourly[15].weather![0].icon,
                       ),
                     ],
                   ),
                 ),
               ),
               Positioned(
-                top: height * 1.02,
+                top: _height * 1.02,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: BackdropFilter(
@@ -331,7 +342,7 @@ class UserStack extends StatelessWidget {
                 ),
               ),
               Positioned(
-                top: height * 1.11,
+                top: _height * 1.11,
                 child: Container(
                   width: MediaQuery.of(context).size.width * 0.9,
                   decoration: BoxDecoration(
@@ -362,7 +373,7 @@ class UserStack extends StatelessWidget {
                 ),
               ),
               Positioned(
-                top: height * 1.47,
+                top: _height * 1.47,
                 child: Container(
                   width: MediaQuery.of(context).size.width * 0.9,
                   decoration: BoxDecoration(

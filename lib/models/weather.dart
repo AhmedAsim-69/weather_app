@@ -1,10 +1,5 @@
 // ignore_for_file: non_constant_identifier_names
 
-import 'dart:convert';
-import 'dart:developer';
-import 'package:http/http.dart' as http;
-import 'package:weather_app/models/forecast.dart';
-
 class Coord {
   final double lon;
   final double lat;
@@ -188,33 +183,4 @@ class WeatherAQI {
           (json['list'] as List).map((item) => AQIList.fromJson(item)).toList(),
     );
   }
-}
-
-Future<List> getCurrentWeather([String? lat, String? lon, String? city]) async {
-  WeatherModel weather = WeatherModel();
-  WeatherAQI weatherAQI = WeatherAQI();
-  ForecastHourly weatherHourly = ForecastHourly(hourly: []);
-  String API = 'f85916ee555786a3c8cdd4ee9d1b19f1';
-  http.Response response = (city == null || city == 'null')
-      ? await http.get(Uri.parse(
-          'https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=$API&units=metric'))
-      : await http.get(Uri.parse(
-          'https://api.openweathermap.org/data/2.5/weather?q=$city&appid=$API&units=metric'));
-  http.Response responseAQI = await http.get(Uri.parse(
-      'https://api.openweathermap.org/data/2.5/air_pollution?lat=$lat&lon=$lon&appid=$API&units=metric'));
-  http.Response responseHourly = (city == null || city == 'null')
-      ? await http.get(Uri.parse(
-          'https://api.openweathermap.org/data/2.5/forecast?lat=$lat&lon=$lon&appid=$API&units=metric'))
-      : await http.get(Uri.parse(
-          'https://api.openweathermap.org/data/2.5/forecast?q=$city&appid=$API&units=metric'));
-  if (response.statusCode == 200 &&
-      responseAQI.statusCode == 200 &&
-      responseHourly.statusCode == 200) {
-    weather = WeatherModel.fromJson(jsonDecode(response.body));
-    weatherAQI = WeatherAQI.fromJson(jsonDecode(responseAQI.body));
-    weatherHourly = ForecastHourly.fromJson(jsonDecode(responseHourly.body));
-  } else {
-    log('something went wronggggg');
-  }
-  return [weather, weatherAQI, weatherHourly];
 }

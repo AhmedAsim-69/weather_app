@@ -9,9 +9,10 @@ import 'package:location/location.dart';
 
 import 'package:weather_app/models/forecast.dart';
 import 'package:weather_app/models/weather.dart';
-import 'package:weather_app/services/shared_preferences.dart';
+import 'package:weather_app/services/user_simple_preferences.dart';
 import 'package:weather_app/services/weather_bloc.dart';
-import 'package:weather_app/widgets/user_stack.dart';
+import 'package:weather_app/services/weather_service.dart';
+import 'package:weather_app/widgets/weather_stack.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
@@ -21,39 +22,41 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-String city = 'null';
-
 class _MyHomePageState extends State<MyHomePage> {
-  Location locationService = Location();
   final _locationService = Location();
   String error = '';
-  String lat = '0';
-  String lon = '0';
+  String _lat = '0';
+  String _lon = '0';
+  String _city = 'null';
+  bool _firstOpen = false;
+
   LocationData? _currentLocation;
   StreamSubscription<LocationData>? locationSubscription;
 
   @override
   void initState() {
     super.initState();
-    initPlatformState();
-    lat = UserSimplePreferences.getLatitude() ?? '0';
-    lon = UserSimplePreferences.getLongitude() ?? '0';
-    city = UserSimplePreferences.getCity() ?? 'null';
+    _initPlatformState();
+    _lat = UserSimplePreferences.getLatitude() ?? '0';
+    _lon = UserSimplePreferences.getLongitude() ?? '0';
+    _city = UserSimplePreferences.getCity() ?? 'null';
+    if ((_lat == '0' && _lon == '0') && _city == 'null') {
+      _firstOpen = true;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<WeatherBloc, WeatherState>(
       builder: (context, state) {
-        updateLocation();
-
-        return FutureBuilder(
-          future: getCurrentWeather(lat, lon, city),
-          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        _updateLocation();
+        return FutureBuilder<WeatherData>(
+          future: WeatherService.getCurrentWeather(_lat, _lon, _city),
+          builder: (BuildContext context, AsyncSnapshot<WeatherData> snapshot) {
             if (snapshot.hasData) {
-              WeatherModel weather = snapshot.data[0];
-              WeatherAQI weatherAQI = snapshot.data[1];
-              ForecastHourly weatherHourly = snapshot.data[2];
+              WeatherModel weather = snapshot.data!.weatherModel;
+              WeatherAQI weatherAQI = snapshot.data!.weatherAQI;
+              ForecastHourly weatherHourly = snapshot.data!.forecastHourly;
 
               if (snapshot.hasError) {
                 return Text('${snapshot.data}');
@@ -68,24 +71,28 @@ class _MyHomePageState extends State<MyHomePage> {
                   snapshot.connectionState == ConnectionState.done) {
                 if (snapshot.hasData) {
                   return RefreshIndicator(
-                      child: UserStack(
-                          currentWeather: weather,
-                          weatherAQI: weatherAQI,
-                          forecastHourly: weatherHourly),
-                      onRefresh: () {
-                        city = 'null';
-                        UserSimplePreferences.storeCity(city);
-                        Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(
-                              builder: (context) => BlocProvider(
-                                create: (context) => WeatherBloc(),
-                                child: const MyHomePage(title: 'Weather App'),
-                              ),
-                            ),
-                            (Route<dynamic> route) => false);
+                    child: WeatherStack(
+                      currentWeather: weather,
+                      weatherAQI: weatherAQI,
+                      forecastHourly: weatherHourly,
+                      city: _city,
+                    ),
+                    onRefresh: () async {
+                      _city = 'null';
+                      await UserSimplePreferences.storeCity(_city);
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(
+                          builder: (context) => BlocProvider(
+                            create: (context) => WeatherBloc(),
+                            child: const MyHomePage(title: 'Weather App'),
+                          ),
+                        ),
+                        (Route<dynamic> route) => false,
+                      );
 
-                        return updateLocation();
-                      });
+                      return _updateLocation();
+                    },
+                  );
                 }
               }
             }
@@ -98,25 +105,38 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Future<void> updateLocation() async {
-    initPlatformState();
+  Future<void> _updateLocation() async {
+    _initPlatformState();
 
     locationSubscription = _locationService.onLocationChanged
         .listen((LocationData currentLocation) async {
       _currentLocation = currentLocation;
 
-      lat = _currentLocation!.latitude.toString();
-      lon = _currentLocation!.longitude.toString();
-      await UserSimplePreferences.storeLatitude(lat);
-      await UserSimplePreferences.storeLongitude(lon);
-      if (city != 'null') {
-        await UserSimplePreferences.storeCity(city);
+      _lat = _currentLocation!.latitude.toString();
+      _lon = _currentLocation!.longitude.toString();
+      await UserSimplePreferences.storeLatitude(_lat);
+      await UserSimplePreferences.storeLongitude(_lon);
+      if (_city != 'null') {
+        await UserSimplePreferences.storeCity(_city);
       }
     });
   }
 
-  void initPlatformState() async {
+  Future<void> _initPlatformState() async {
     try {
+      await _locationService.getLocation();
+      _updateLocation();
+      if (_firstOpen == true) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (context) => BlocProvider(
+              create: (context) => WeatherBloc(),
+              child: const MyHomePage(title: 'Weather App'),
+            ),
+          ),
+          (Route<dynamic> route) => false,
+        );
+      }
       error = '';
     } on PlatformException catch (e) {
       if (e.code == 'PERMISSION_DENIED') {

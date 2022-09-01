@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:weather_app/pages/homepage.dart';
-import 'package:weather_app/services/shared_preferences.dart';
+import 'package:weather_app/services/user_simple_preferences.dart';
 import 'package:weather_app/services/weather_bloc.dart';
 
-Future main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await UserSimplePreferences.init();
   runApp(const MyApp());
@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
       title: 'Weather App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        fontFamily: "Typography",
+        fontFamily: "Cairo",
         primarySwatch: Colors.blue,
       ),
       home: BlocProvider(
