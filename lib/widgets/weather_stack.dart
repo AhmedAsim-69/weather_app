@@ -34,8 +34,7 @@ class WeatherStack extends StatelessWidget {
   final WeatherModel currentWeather;
   late final _bgWeather = (currentWeather.weather![0].main == 'Clear')
       ? Assets.clear
-      : (currentWeather.weather![0].main == 'Clouds' ||
-              currentWeather.weather![0].main == 'Smoke')
+      : (currentWeather.weather![0].main == 'Clouds')
           ? Assets.clouds
           : (currentWeather.weather![0].main == 'Drizzle')
               ? Assets.drizzle
